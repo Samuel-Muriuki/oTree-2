@@ -1,0 +1,23 @@
+{{ block title }}Choose your desired mesage{{ endblock }}
+{{ block content }}
+   {{ comment }}
+    <!-- <p>
+        Least &nbsp;
+    {{ for choice in form.pizza }}
+        {{ choice }}
+    {{ endfor }}
+    &nbsp; Most
+    </p>  -->
+    {{ endcomment }}
+    <p>
+    Below is a list of messages that could be used in communication. 
+    </p>
+
+    {{ formfields }}
+    <p>
+    {{ next_button }}
+    </p>
+
+    {{ include C.INSTRUCTION_TEMPLATE }}
+
+{{ endblock }}
