@@ -1,0 +1,21 @@
+{{ block title }}Round {{ subsession.round_number }} of {{ C.NUM_ROUNDS }}{{ endblock }}
+{{ block content }}
+
+    
+
+    <p>
+        At the end, a random round will be chosen for payment.
+    </p>
+
+    
+        In this round, your role is:   {{  player.role  }}.
+    </p>
+
+    <p>
+        Did A say anything in addition to the information on the split of the revenue?
+        {{ formfield "choose_message" }}
+    </p>
+    
+    {{ next_button }}
+
+{{ endblock }}
