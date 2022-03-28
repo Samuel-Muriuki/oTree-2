@@ -33,7 +33,10 @@ class Group(BaseGroup):
         doc="""Amount sent by P1""",
         label="Please enter an amount from 0 to 100:",
     )
-    sent_back_amount = models.CurrencyField(doc="""Amount sent back by P2""", min=cu(0))
+    sent_back_amount = models.CurrencyField(
+        doc="""Amount sent back by P2""", 
+        min=cu(0)
+    )
 
 
 class Player(BasePlayer):

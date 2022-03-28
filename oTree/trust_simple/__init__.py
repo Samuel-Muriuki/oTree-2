@@ -27,7 +27,8 @@ class Group(BaseGroup):
         label="How much do you want to send to participant B?",
     )
     sent_back_amount = models.CurrencyField(
-        doc="""Amount sent back by P2""", label="How much do you want to send back?"
+        doc="""Amount sent back by P2""",
+        label="How much do you want to send back?"
     )
 
 

@@ -17,6 +17,7 @@ class C(BaseConstants):
     # Initial amount allocated to each player
     ENDOWMENT = cu(100)
     MULTIPLIER = 1.2
+    BONUS_PAYOFF = cu(50)
 
     A_ROLE = 'A'
     B_ROLE = 'B'
@@ -213,6 +214,12 @@ class Player(BasePlayer):
 #         else:
 #             p.payoff = cu(0)
 
+def set_payoffs(group):
+    p1 = group.get_player_by_id(1)
+    p2 = group.get_player_by_id(2)
+    p1.payoff = C.BONUS_PAYOFF
+    p2.payoff = C.BONUS_PAYOFF
+
 # PAGES
 class Introduction(Page):
     pass
@@ -257,11 +264,18 @@ class Choice(Page):
 
 
 class ResultsWaitPage(WaitPage):
-    # after_all_players_arrive = set_payoffs
-    pass
+    after_all_players_arrive = set_payoffs
+    
 
 
 class Results(Page):
+    # @staticmethod
+    # def vars_for_template(player):
+    #     group = player.group
+
+    #     return dict(
+    #         total_revenue = group.investment_amount * C.MULTIPLIER
+    #     )
     pass
 
 class ChooseMessage(Page):
