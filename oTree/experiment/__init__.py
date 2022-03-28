@@ -98,7 +98,7 @@ class Group(BaseGroup):
         label = "Write down the message you picked."
     )
     write_words = models.StringField(
-        label = "You will receive 30% of the revenue and I will receive 70% of the revenue."
+        label = "You will receive 70% of the revenue and I will receive 30% of the revenue."
     )
     choose_message = models.IntegerField(
         choices=[[1, 'Yes'],[2, 'No']],
@@ -123,6 +123,10 @@ class Group(BaseGroup):
         min=0,
         max=C.ENDOWMENT,
         label="Enter an investment amount from 0 to 100:",
+    )
+    confident = models.IntegerField(
+        widget=widgets.RadioSelect,
+        choices=[1, 2, 3, 4, 5, 6, 7, 8, 9]
     )
     
 
@@ -162,7 +166,7 @@ class Player(BasePlayer):
         label="Will you choose the message you selected?",
     
     )
-
+    
 
     most_popular_message = models.IntegerField(
         choices=[[1, 'Hi'],[2, 'No']],
@@ -307,6 +311,7 @@ class GuessB(Page):
     def is_displayed(player):
         return player.id_in_group == 2
 
+
 class InvestmentA(Page):
     form_model = 'group'
     form_fields = ['investment_amount']
@@ -323,6 +328,23 @@ class InvestmentB(Page):
     def is_displayed(player):
         return player.id_in_group == 2
     
+
+class ChoiceAConfidence(Page):
+    form_model = 'group'
+    form_fields =['confident']
+
+    @staticmethod
+    def is_displayed(player):
+        return player.id_in_group == 1
+
+class ChoiceBConfidence(Page):
+    form_model = 'group'
+    form_fields = ['confident']
+
+    @staticmethod
+    def is_displayed(player):
+        return player.id_in_group == 2
+
 
 page_sequence = [
     Introduction, 
@@ -344,10 +366,15 @@ page_sequence = [
     ResultsWaitPage,
     GuessB,
     ResultsWaitPage,
+    ChoiceAConfidence,
+    ResultsWaitPage,
+    ChoiceAConfidence,
+    ResultsWaitPage,
     InvestmentA,
     ResultsWaitPage,
     InvestmentB,
     ResultsWaitPage,
+
     
     
     

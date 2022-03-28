@@ -15,14 +15,12 @@
       
     
    <p>
-    
-    If your answer is “Yes”, please say words in the following box to B 
-    {{ formfield "write_words" }}
-    If your answer is “No”, please say words in the following box to B
-    {{ formfield "write_words" }}
-
-
-    You will receive 70% of the revenue and I will receive 30% of the revenue.
+    Least &nbsp;
+    {{ for choice in form.confident }}
+        {{ choice }}
+    {{ endfor }}
+    &nbsp; Most
+   
    </p>
     
     {{ next_button }}
