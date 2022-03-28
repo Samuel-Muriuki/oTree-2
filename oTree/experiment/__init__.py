@@ -10,7 +10,7 @@ There will be multiple rounds in the experiment, and each round will proceed in 
 
 class C(BaseConstants):
     NAME_IN_URL = 'experiment'
-    PLAYERS_PER_GROUP = 2
+    PLAYERS_PER_GROUP = None
     NUM_ROUNDS = 19
     INSTRUCTIONS_TEMPLATE = 'experiment/instructions.html'
     INSTRUCTION_TEMPLATE = 'experiment/instruction.html'
@@ -23,54 +23,11 @@ class C(BaseConstants):
     B_ROLE = 'B'
 
 class Subsession(BaseSubsession):
+    pass
     #group and types are defined in the Subsession class
-    def creating_session(self):
+    # def creating_session(self):
     #to set initial values in the subsession
-        self.group_randomly(fixed_id_in_group=False)
-        #group_randomly() -> built-in function that  shuffles players
-        rdm=random.randint(0, 1)
-       
-        # assign a random value, either 0 or 1, to variable rdm
-        for g in self.get_groups():
-        #get_groups() -> returns a list of all the groups in the subsession.
-        # loop through the groups in the subsession
-            for p in g.get_players():
-            # get_players() -> returns a list of all the players in the subsession.
-            # loop through the players in the subsession (p is a player)
-#***************************************************************************
-# matching and types when random is 1 - > even = B, odd= A
-#***************************************************************************
-                if rdm==0:
-                # the following code is executed if rdm is 1
-                    p.id._in_group  = 1
-                    # id_in_group -> player's attribute (unique identifier)
-                    # if the id is even (via modulo operator)
-                    p.participant.vars['type'] = 'B'
-                        # the participant is assigned to type "B"
-                        # participant.vars is a dictionary that can store any data.
-                        # information stored participant.vars persists across apps
-                        # this piece of information is not saved in the data exported, do not store here info you need for your analysis
-                    
-                    # if the participant id is odd
-                    # p.participant.vars['type'] = 'A'
-                        # the participant is assigned to type "A"
-                    p.type = p.participant.vars['type']
-                    # "copy" the value to variable "type" in players space
-                    # the variable type must be defined in class Player (see below)
-#***************************************************************************
-# matching and types when random is 1 - > even = A, odd= B
-#***************************************************************************
-                else:
-                # the following code is executed if rdm is 0
-                    p.id_in_group  = 2
-                    # see comment above
-                    p.participant.vars['type'] = 'A'
-                        # see comment above
-                    
-                    # see comment above
-                    # p.participant.vars['type'] = 'B'
-                        # see comment above
-                p.type = p.participant.vars['type']
+        
 
 
 
@@ -147,11 +104,11 @@ class Player(BasePlayer):
     #         return 'B'
     
 
-    # def role(self):
-    #     if self.id_in_group == 2:
-    #         return 'A'
-    #     if self.id_in_group == 1:
-    #         return 'B'
+    def role(self):
+        if self.id_in_group == 2:
+            return 'A'
+        if self.id_in_group == 1:
+            return 'B'
         
 
     message_list = models.IntegerField(
@@ -213,6 +170,53 @@ class Player(BasePlayer):
 #             p.payoff = C.STAKES
 #         else:
 #             p.payoff = cu(0)
+def creating_session(subsession: Subsession):
+    session = subsession.session
+    session.past_groups = []
+    # self.group_randomly(fixed_id_in_group=False)
+    #group_randomly() -> built-in function that  shuffles players
+    # rdm=random.randint(0, 1)
+    
+    # assign a random value, either 0 or 1, to variable rdm
+    # for g in self.get_groups():
+    #     for p in g.get_players():
+    #         if rdm==0:
+    #         # the following code is executed if rdm is 1
+    #             p.id._in_group  = 1
+    #             # id_in_group -> player's attribute (unique identifier)
+    #             p.participant.vars['type'] = 'B'
+    #                 # the participant is assigned to type "B"
+                    
+    #             # if the participant id is odd the participant is assigned to type "A"
+    #             p.type = p.participant.vars['type']
+    #         else:
+    #         # the following code is executed if rdm is 0
+    #             p.id_in_group  = 2
+                
+    #             p.participant.vars['type'] = 'A'
+                
+                
+    #         p.type = p.participant.vars['type']
+
+def group_by_arrival_time_method(subsession: Subsession, waiting_players):
+    session = subsession.session
+
+    import itertools
+
+    # this generates all possible pairs of waiting players
+    # and checks if the group would be valid.
+    for possible_group in itertools.combinations(waiting_players, 2):
+        # use a set, so that we can easily compare even if order is different
+        # e.g. {1, 2} == {2, 1}
+        pair_ids = set(p.id_in_subsession for p in possible_group)
+        # if this pair of players has not already been played
+        if pair_ids not in session.past_groups:
+            # mark this group as used, so we don't repeat it in the next round.
+            session.past_groups.append(pair_ids)
+            # in this function,
+            # 'return' means we are creating a new group with this selected pair
+            return possible_group
+
 
 def set_payoffs(group):
     p1 = group.get_player_by_id(1)
@@ -221,6 +225,10 @@ def set_payoffs(group):
     p2.payoff = C.BONUS_PAYOFF
 
 # PAGES
+class GroupingWaitPage(WaitPage):
+    group_by_arrival_time = True
+    body_text = "Waiting to pair you with someone you haven't already played with"
+
 class Introduction(Page):
     pass
 
@@ -262,6 +270,10 @@ class Choice(Page):
     def vars_for_template(player: Player):
         return dict(player_in_previous_rounds=player.in_previous_rounds())
 
+    @staticmethod
+    def vars_for_template(player: Player):
+        return dict(partner=player.get_others_in_group()[0])
+
 
 class ResultsWaitPage(WaitPage):
     after_all_players_arrive = set_payoffs
@@ -300,6 +312,10 @@ class SecondChoice(Page):
     @staticmethod
     def is_displayed(player):
         return player.id_in_group == 2
+
+    @staticmethod
+    def vars_for_template(player: Player):
+        return dict(partner=player.get_others_in_group()[0])
 
 class SentMessage(Page):
     form_model = 'group'
@@ -361,6 +377,7 @@ class ChoiceBConfidence(Page):
 
 
 page_sequence = [
+    GroupingWaitPage,
     Introduction, 
     ListMessage, 
     ResultsWaitPage,

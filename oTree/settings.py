@@ -24,10 +24,13 @@ SESSION_CONFIGS = [
         name='prisoner', app_sequence=['prisoner', 'payment_info'], num_demo_participants=2
     ),
     dict(
-        name='experiment', app_sequence=['experiment', 'payment_info'], num_demo_participants=2
+        name='experiment', app_sequence=['experiment', 'payment_info'], num_demo_participants=20
     ),
     dict(
         name='matching_pennies', app_sequence=['matching_pennies', 'payment_info'], num_demo_participants=2
+    ),
+    dict(
+        name='public_goods_simple', app_sequence=['public_goods_simple', 'payment_info'], num_demo_participants=3
     ),
 ]
 
